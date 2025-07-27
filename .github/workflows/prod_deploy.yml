@@ -19,10 +19,10 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # Configure Docker for Artifact Registry
-      - name: Configure Docker for Artifact Registry
-        run: |
-          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+      # # Configure Docker for Artifact Registry
+      # - name: Configure Docker for Artifact Registry
+      #   run: |
+      #     gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Install dependencies
         run: |
