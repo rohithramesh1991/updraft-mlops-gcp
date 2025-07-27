@@ -13,30 +13,27 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Authenticate to GCP for Artifact Registry access
-      - name: Authenticate to GCP
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      # # Configure Docker for Artifact Registry
-      # - name: Configure Docker for Artifact Registry
-      #   run: |
-      #     gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
-
       - name: Install dependencies
         run: |
           pip install pytest pandas scikit-learn xgboost joblib google-cloud-bigquery kfp
 
+      - name: Authenticate Docker to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
       - name: Build Docker image
         run: |
           cd components/${{ matrix.component }}
-          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }} .
-
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }} .
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }}
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }}
 
   # Compile and deploy pipeline (after all images are pushed)
   deploy-pipeline:
@@ -50,7 +47,7 @@ jobs:
 
       - name: Compile pipeline
         run: |
-          python updraft-mlops-gcp/pipelines/compile_pipeline.py
+          python pipelines/compile_pipeline.py
 
       # (Optional) Deploy pipeline to Vertex AI
       # - name: Deploy pipeline
@@ -58,5 +55,6 @@ jobs:
       #     GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
       #   run: |
       #     gcloud ai pipelines run --project=$GCP_PROJECT --region=$REGION \
-      #         --pipeline-definition-file=updraft-mlops-gcp/pipelines/classification_pipeline.json \
+      #         --pipeline-definition-file=pipelines/classification_pipeline.json \
       #         --parameter-values=...
+
