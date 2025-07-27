@@ -1,0 +1,33 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [load_data, preprocess, train, evaluate]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pandas scikit-learn xgboost joblib google-cloud-bigquery
+
+      - name: Run unit tests
+        run: |
+          cd updraft-mlops-gcp/components/${{ matrix.component }}
+          if [ -d tests ]; then pytest tests; fi
+
+      - name: Build Docker image
+        run: |
+          cd updraft-mlops-gcp/components/${{ matrix.component }}
+          docker build -t gcr.io/$GCP_PROJECT/${{ matrix.component }}:${{ github.sha }} .

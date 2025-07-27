@@ -1,0 +1,65 @@
+name: Production Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [load_data, preprocess, train, evaluate]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pandas scikit-learn xgboost joblib google-cloud-bigquery kfp
+
+      - name: Build Docker image
+        run: |
+          cd updraft-mlops-gcp/components/${{ matrix.component }}
+          docker build -t gcr.io/$GCP_PROJECT/${{ matrix.component }}:${{ github.sha }} .
+
+      - name: Authenticate Docker to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Push Docker image
+        run: |
+          docker push gcr.io/$GCP_PROJECT/${{ matrix.component }}:${{ github.sha }}
+
+  # Compile and deploy pipeline (after all images are pushed)
+  deploy-pipeline:
+    runs-on: ubuntu-latest
+    needs: build-push-deploy
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: pip install kfp google-cloud-aiplatform
+
+      - name: Compile pipeline
+        run: |
+          python updraft-mlops-gcp/pipelines/compile_pipeline.py
+
+      # (Optional) Deploy pipeline to Vertex AI
+      # - name: Deploy pipeline
+      #   env:
+      #     GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+      #   run: |
+      #     gcloud ai pipelines run --project=$GCP_PROJECT --region=$REGION \
+      #         --pipeline-definition-file=updraft-mlops-gcp/pipelines/classification_pipeline.json \
+      #         --parameter-values=...
