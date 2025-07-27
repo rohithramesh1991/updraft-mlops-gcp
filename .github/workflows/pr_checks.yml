@@ -26,7 +26,3 @@ jobs:
         run: |
           cd components/${{ matrix.component }}
           docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }} .
-
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }}
