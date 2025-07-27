@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test-build:
+  build-and-push:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -13,21 +13,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
         with:
-          python-version: 3.9
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
 
-      - name: Install dependencies
+      - name: Configure Docker credential helper
         run: |
-          pip install pytest pandas scikit-learn xgboost joblib google-cloud-bigquery
-
-      - name: Run unit tests
-        run: |
-          cd updraft-mlops-gcp/components/${{ matrix.component }}
-          if [ -d tests ]; then pytest tests; fi
+          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Build Docker image
         run: |
-          cd updraft-mlops-gcp/components/${{ matrix.component }}
-          docker build -t gcr.io/$GCP_PROJECT/${{ matrix.component }}:${{ github.sha }} .
+          cd components/${{ matrix.component }}
+          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }} .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }}
