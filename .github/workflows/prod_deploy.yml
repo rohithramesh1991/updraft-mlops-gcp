@@ -13,6 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # # Uncomment below if you want to enforce Python version (recommended)
       # - name: Set up Python
       #   uses: actions/setup-python@v2
       #   with:
@@ -24,7 +25,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd updraft-mlops-gcp/components/${{ matrix.component }}
+          cd components/${{ matrix.component }}
           docker build -t gcr.io/$GCP_PROJECT/${{ matrix.component }}:${{ github.sha }} .
 
       - name: Authenticate Docker to GCP
@@ -43,6 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # Uncomment below if you want to enforce Python version (recommended)
       # - name: Set up Python
       #   uses: actions/setup-python@v2
       #   with:
@@ -53,7 +55,7 @@ jobs:
 
       - name: Compile pipeline
         run: |
-          python updraft-mlops-gcp/pipelines/compile_pipeline.py
+          python pipelines/compile_pipeline.py
 
       # (Optional) Deploy pipeline to Vertex AI
       # - name: Deploy pipeline
@@ -61,5 +63,6 @@ jobs:
       #     GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
       #   run: |
       #     gcloud ai pipelines run --project=$GCP_PROJECT --region=$REGION \
-      #         --pipeline-definition-file=updraft-mlops-gcp/pipelines/classification_pipeline.json \
+      #         --pipeline-definition-file=pipelines/classification_pipeline.json \
       #         --parameter-values=...
+
