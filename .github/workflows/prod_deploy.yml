@@ -26,7 +26,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd components/${{ matrix.component }}
-          docker build -t gcr.io/$GCP_PROJECT/${{ matrix.component }}:${{ github.sha }} .
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ matrix.component }}:${{ github.sha }} .
 
       - name: Authenticate Docker to GCP
         uses: google-github-actions/auth@v2
@@ -35,7 +35,7 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push gcr.io/$GCP_PROJECT/${{ matrix.component }}:${{ github.sha }}
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ matrix.component }}:${{ github.sha }}
 
   # Compile and deploy pipeline (after all images are pushed)
   deploy-pipeline:
