@@ -8,8 +8,6 @@ preprocess_op = kfp.components.load_component_from_file('components_yaml/preproc
 train_op = kfp.components.load_component_from_file('components_yaml/train_op.yaml')
 evaluate_op = kfp.components.load_component_from_file('components_yaml/evaluate_op.yaml')
 
-print("preprocess_op outputs:", preprocess_op.outputs)
-
 @pipeline(name='classification-pipeline')
 def classification_pipeline(
     project: str,
@@ -24,6 +22,7 @@ def classification_pipeline(
     p = preprocess_op(
         input_path=d.outputs['output_path']
     )
+    print("preprocess_op outputs:", preprocess_op.outputs)
     t = train_op(
         X_train_path=p.outputs['X_train_path'],
         y_train_path=p.outputs['y_train_path']
