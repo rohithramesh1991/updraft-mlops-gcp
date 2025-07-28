@@ -24,16 +24,16 @@ jobs:
 
       - name: Configure Docker for Artifact Registry
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Build Docker image
         run: |
           cd components/${{ matrix.component }}
-          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }} .
+          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }} .
 
       - name: Push Docker image
         run: |
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }}
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/${{ matrix.component }}:${{ github.sha }}
 
   # Compile and deploy pipeline (after all images are pushed)
   deploy-pipeline:
@@ -44,6 +44,16 @@ jobs:
 
       - name: Install dependencies
         run: pip install kfp google-cloud-aiplatform
+      
+      - name: Replace image URIs in pipeline
+        run: |
+          sed -i "s|{{LOAD_IMAGE_URI}}|${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/load_data:${{ github.sha }}|g" pipelines/classification_pipeline.py
+          sed -i "s|{{PREPROCESS_IMAGE_URI}}|${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/preprocess:${{ github.sha }}|g" pipelines/classification_pipeline.py
+          sed -i "s|{{TRAIN_IMAGE_URI}}|${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/train:${{ github.sha }}|g" pipelines/classification_pipeline.py
+          sed -i "s|{{EVALUATE_IMAGE_URI}}|${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_ARTIFACT_REPO }}/evaluate:${{ github.sha }}|g" pipelines/classification_pipeline.py
+
+      - name: Create pipelines folder
+        run: mkdir -p pipelines
 
       - name: Compile pipeline
         run: |

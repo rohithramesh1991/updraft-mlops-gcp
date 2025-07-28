@@ -1,6 +1,6 @@
 from kfp.v2.dsl import pipeline, component, Input, Output, Dataset, Model, Metrics
 
-@component(base_image="gcr.io/YOUR_PROJECT_ID/load_data:TAG")
+@component(base_image="{{LOAD_IMAGE_URI}}")
 def load_data_op(project: str, dataset: str, table: str, output_path: Output[Dataset]):
     from google.cloud import bigquery
     import pandas as pd
@@ -9,7 +9,7 @@ def load_data_op(project: str, dataset: str, table: str, output_path: Output[Dat
     df = client.query(query).to_dataframe()
     df.to_csv(output_path.path, index=False)
 
-@component(base_image="gcr.io/YOUR_PROJECT_ID/preprocess:TAG")
+@component(base_image="{{PREPROCESS_IMAGE_URI}}")
 def preprocess_op(input_path: Input[Dataset], output_path: Output[Dataset]):
     import pandas as pd
     df = pd.read_csv(input_path.path)
@@ -22,7 +22,7 @@ def preprocess_op(input_path: Input[Dataset], output_path: Output[Dataset]):
     ]).copy()
     df.to_csv(output_path.path, index=False)
 
-@component(base_image="gcr.io/YOUR_PROJECT_ID/train:TAG")
+@component(base_image="{{TRAIN_IMAGE_URI}}")
 def train_op(input_path: Input[Dataset], model_path: Output[Model], X_test_path: Output[Dataset], y_test_path: Output[Dataset]):
     import pandas as pd
     import joblib
@@ -31,7 +31,7 @@ def train_op(input_path: Input[Dataset], model_path: Output[Model], X_test_path:
     from xgboost import XGBClassifier
 
     df = pd.read_csv(input_path.path)
-    target_col = 'target_column'  # TODO: change this!
+    target_col = 'mob_12_arrears'  # TODO: change this!
     X = df.drop(target_col, axis=1)
     y = df[target_col]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -44,7 +44,7 @@ def train_op(input_path: Input[Dataset], model_path: Output[Model], X_test_path:
     pd.DataFrame(X_test_scaled).to_csv(X_test_path.path, index=False)
     pd.DataFrame(y_test).to_csv(y_test_path.path, index=False)
 
-@component(base_image="gcr.io/YOUR_PROJECT_ID/evaluate:TAG")
+@component(base_image="{{EVALUATE_IMAGE_URI}}")
 def evaluate_op(model_path: Input[Model], X_test_path: Input[Dataset], y_test_path: Input[Dataset], report_path: Output[Metrics]):
     import pandas as pd
     import joblib
