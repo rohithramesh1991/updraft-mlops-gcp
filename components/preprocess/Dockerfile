@@ -3,4 +3,4 @@ WORKDIR /app
 COPY src/ ./src
 RUN pip install --upgrade pip && \
     pip install pandas 
-ENTRYPOINT ["python", "src/main.py"]
+ENTRYPOINT ["python", "-u", "src/main.py"]

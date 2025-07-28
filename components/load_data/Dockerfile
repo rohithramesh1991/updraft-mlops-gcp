@@ -5,4 +5,4 @@ RUN pip install --upgrade pip && \
     pip install pandas scikit-learn joblib google-cloud-bigquery db-dtypes
 
 COPY src/ ./src
-ENTRYPOINT ["python", "src/main.py"]
+ENTRYPOINT ["python", "-u", "src/main.py"]
