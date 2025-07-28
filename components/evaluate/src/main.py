@@ -6,7 +6,32 @@ from sklearn.metrics import classification_report, confusion_matrix, average_pre
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# from kfp.v2.dsl import Metrics
+from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
+from xgboost import XGBClassifier
+
+# --- BEGIN Custom classes required to load pipeline ---
+class TopKFeatureSelector(BaseEstimator, TransformerMixin):
+    def __init__(self, k=20):
+        self.k = k
+        self.top_features_ = []
+    def fit(self, X, y):
+        model = XGBClassifier(
+            eval_metric='aucpr', n_estimators=100, max_depth=3, learning_rate=0.1, tree_method='hist'
+        )
+        model.fit(X, y)
+        importances = pd.Series(model.feature_importances_, index=X.columns)
+        self.top_features_ = importances.nlargest(self.k).index.tolist()
+        return self
+    def transform(self, X):
+        return X[self.top_features_]
+
+class XGBWithAutoWeight(XGBClassifier, ClassifierMixin):
+    def fit(self, X, y, **kwargs):
+        pos = (y == 1).sum()
+        neg = (y == 0).sum()
+        self.scale_pos_weight = neg / pos
+        return super().fit(X, y, **kwargs)
+# --- END Custom classes ---
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
