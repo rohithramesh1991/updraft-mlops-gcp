@@ -1,3 +1,4 @@
+import os
 import argparse
 import pandas as pd
 import joblib
@@ -18,7 +19,14 @@ if __name__ == "__main__":
     y_test = pd.read_csv(args.y_test_path).values.ravel()
     y_pred = pipe.predict(X_test)
     report = classification_report(y_test, y_pred, output_dict=True)
-    pd.DataFrame(report).to_csv(args.report_path)
+
+    report_df = pd.DataFrame(report).transpose()[['precision', 'recall', 'f1-score']]
+
+    # Ensure parent folder exists
+    os.makedirs(os.path.dirname(args.report_path), exist_ok=True)
+
+    report_df.to_csv(args.report_path, index=True)
+    print(f"Metrics saved to: {args.report_path}")
 
     # Confusion matrix plot
     cm = confusion_matrix(y_test, y_pred)
