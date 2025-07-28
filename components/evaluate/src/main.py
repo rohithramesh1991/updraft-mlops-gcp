@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument('--y_test_path', type=str, required=True)
     parser.add_argument('--report_path', type=str, required=True)
     args = parser.parse_args()
+    print(f"[DEBUG] args.report_path = {args.report_path}")
 
     pipe = joblib.load(args.model_path)
     X_test = pd.read_csv(args.X_test_path)
@@ -28,9 +29,7 @@ if __name__ == "__main__":
     os.makedirs(os.path.dirname(args.report_path), exist_ok=True)
 
     # Write metrics file for the artifact
-    artifact_path = os.environ.get("METRICS_METADATA_PATH", args.report_path)
-    report_df.to_csv(artifact_path, index=True)
-    print(f"[INFO] Metrics CSV written to: {artifact_path}")
+    report_df.to_csv(args.report_path, index=True)
 
     # Log summary metrics to Vertex AI pipeline UI
     metrics = Metrics()
