@@ -1,3 +1,4 @@
+import os
 import argparse
 import pandas as pd
 import joblib
@@ -51,4 +52,5 @@ if __name__ == "__main__":
         ))
     ])
     pipe.fit(X_train, y_train)
+    os.makedirs(os.path.dirname(args.model_path), exist_ok=True)
     joblib.dump(pipe, args.model_path)

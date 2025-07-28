@@ -1,4 +1,5 @@
 import argparse
+import os
 import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -62,6 +63,10 @@ if __name__ == "__main__":
     parser.add_argument('--y_train_path', type=str, required=True)
     parser.add_argument('--y_test_path', type=str, required=True)
     args = parser.parse_args()
+
+    # --- Directory creation fix ---
+    for path in [args.x_train_path, args.x_test_path, args.y_train_path, args.y_test_path]:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
 
     df = pd.read_csv(args.input_path, parse_dates=['application_finished_at'])
     df_features = FeatureEngineering().fit_transform(df)

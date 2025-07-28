@@ -1,8 +1,10 @@
+import os
 import argparse
 from google.cloud import bigquery
 import pandas as pd
 
 def load_data(project, dataset, table, output_path):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     client = bigquery.Client(project=project)
     query = f"SELECT * FROM `{project}.{dataset}.{table}_prepped`"
     df = client.query(query).to_dataframe()
