@@ -58,10 +58,15 @@ jobs:
       - name: Compile pipeline
         run: |
           python pipelines/compile_pipeline.py
+      
+      - name: Set up GCP credentials
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" > ${HOME}/gcp-sa-key.json
+        shell: bash
 
       - name: Deploy pipeline
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ HOME }}/gcp-sa-key.json
           GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
           GCP_REGION: ${{ secrets.GCP_REGION }}
           BQ_DATASET: ${{ secrets.BQ_DATASET }}
