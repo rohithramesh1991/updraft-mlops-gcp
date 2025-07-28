@@ -1,31 +1,54 @@
 import argparse
 import pandas as pd
 import joblib
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
+from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
-def train(input_path, model_path, X_test_path, y_test_path):
-    df = pd.read_csv(input_path)
-    target_col = 'target_column'  # TODO: change this to your real target column
-    X = df.drop(target_col, axis=1)
-    y = df[target_col]
+class TopKFeatureSelector(BaseEstimator, TransformerMixin):
+    def __init__(self, k=20):
+        self.k = k
+        self.top_features_ = []
+    def fit(self, X, y):
+        model = XGBClassifier(
+            eval_metric='aucpr', n_estimators=100, max_depth=3, learning_rate=0.1, tree_method='hist'
+        )
+        model.fit(X, y)
+        importances = pd.Series(model.feature_importances_, index=X.columns)
+        self.top_features_ = importances.nlargest(self.k).index.tolist()
+        return self
+    def transform(self, X):
+        return X[self.top_features_]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
-    model = XGBClassifier()
-    model.fit(X_train_scaled, y_train)
-    joblib.dump(model, model_path)
-    pd.DataFrame(X_test_scaled).to_csv(X_test_path, index=False)
-    pd.DataFrame(y_test).to_csv(y_test_path, index=False)
+class XGBWithAutoWeight(XGBClassifier, ClassifierMixin):
+    def fit(self, X, y, **kwargs):
+        pos = (y == 1).sum()
+        neg = (y == 0).sum()
+        self.scale_pos_weight = neg / pos
+        return super().fit(X, y, **kwargs)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_path', type=str, required=True)
+    parser.add_argument('--X_train_path', type=str, required=True)
+    parser.add_argument('--y_train_path', type=str, required=True)
     parser.add_argument('--model_path', type=str, required=True)
-    parser.add_argument('--X_test_path', type=str, required=True)
-    parser.add_argument('--y_test_path', type=str, required=True)
     args = parser.parse_args()
-    train(args.input_path, args.model_path, args.X_test_path, args.y_test_path)
+
+    X_train = pd.read_csv(args.X_train_path)
+    y_train = pd.read_csv(args.y_train_path).values.ravel()
+
+    pipe = Pipeline([
+        ('scaler', StandardScaler()),
+        ('top_k_selector', TopKFeatureSelector(k=20)),
+        ('model', XGBWithAutoWeight(
+            eval_metric='aucpr',
+            n_estimators=100,
+            max_depth=3,
+            learning_rate=0.1,
+            tree_method='hist',
+            reg_lambda=5
+        ))
+    ])
+    pipe.fit(X_train, y_train)
+    joblib.dump(pipe, args.model_path)
