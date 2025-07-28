@@ -39,6 +39,8 @@ if __name__ == "__main__":
     parser.add_argument('--x_test_path', type=str, required=True)
     parser.add_argument('--y_test_path', type=str, required=True)
     parser.add_argument('--report_path', type=str, required=True)
+    parser.add_argument('--pr_curve_path', type=str, required=True)
+    parser.add_argument('--cm_path', type=str, required=True)
     args = parser.parse_args()
     print(f"[DEBUG] args.report_path = {args.report_path}")
 
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     plt.ylabel("Actual")
     plt.title("Confusion Matrix")
     plt.tight_layout()
-    plt.savefig("confusion_matrix.png")
+    plt.savefig(args.cm_path)
 
     # Precision-Recall Curve
     if hasattr(pipe, "predict_proba"):
@@ -85,4 +87,4 @@ if __name__ == "__main__":
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig("pr_curve.png")
+        plt.savefig(args.pr_curve_path)
