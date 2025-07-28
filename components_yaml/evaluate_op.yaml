@@ -4,11 +4,10 @@ inputs:
   - {name: model_path, type: Model}
   - {name: x_test_path, type: Dataset}
   - {name: y_test_path, type: Dataset}
-  - {name: report_path, type: Metrics}
-  - {name: pr_curve_path, type: Artifact}
-  - {name: cm_path, type: Artifact}
 outputs:
   - {name: report_path, type: Metrics}
+  - {name: pr_curve_path, type: Artifact}
+  - {name: cm_path, type: Artifact}  
 implementation:
   container:
     image: IMAGE_URI_EVALUATE
@@ -17,7 +16,6 @@ implementation:
       "--model_path", {inputPath: model_path},
       "--x_test_path", {inputPath: x_test_path},
       "--y_test_path", {inputPath: y_test_path},
-      "--report_path", {outputPath: report_path},
       "--report_path", {outputPath: report_path},
       "--pr_curve_path", {outputPath: pr_curve_path},
       "--cm_path", {outputPath: cm_path}
