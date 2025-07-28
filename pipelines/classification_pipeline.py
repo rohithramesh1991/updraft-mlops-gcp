@@ -24,6 +24,7 @@ def classification_pipeline(
     p = preprocess_op(
         input_path=d.outputs['output_path']
     )
+    print("preprocess_op outputs:", p.outputs)
     t = train_op(
         X_train_path=p.outputs['X_train_path'],
         y_train_path=p.outputs['y_train_path']
