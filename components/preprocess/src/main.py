@@ -68,7 +68,15 @@ if __name__ == "__main__":
     for path in [args.x_train_path, args.x_test_path, args.y_train_path, args.y_test_path]:
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
-    df = pd.read_csv(args.input_path, parse_dates=['application_finished_at'])
+    df = pd.read_csv(args.input_path)
+
+    if 'application_finished_at' in df.columns:
+        df['application_finished_at'] = pd.to_datetime(df['application_finished_at'], errors='coerce')
+        print("application_finished_at dtype:", df['application_finished_at'].dtype)
+        print("Nulls in application_finished_at:", df['application_finished_at'].isnull().sum())
+    else:
+        print("application_finished_at column NOT FOUND!")
+
     df_features = FeatureEngineering().fit_transform(df)
     excluded_cols = ['vault_id', 'mob_12_arrears']
     df_numeric = df_features.drop(columns=excluded_cols, errors='ignore').select_dtypes(include='number')
