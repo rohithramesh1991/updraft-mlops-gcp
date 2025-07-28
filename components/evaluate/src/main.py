@@ -25,7 +25,7 @@ if __name__ == "__main__":
     report_df = pd.DataFrame(report).transpose()[['precision', 'recall', 'f1-score']]
 
     os.makedirs(os.path.dirname(args.report_path), exist_ok=True)
-    report_df.to_csv(args.report_path, index=True)
+    report_df.to_csv(os.path.join(args.report_path, "report.csv"), index=True)
     print(f"[INFO] Metrics CSV written to: {args.report_path}")
 
     # Log summary metrics
@@ -55,4 +55,4 @@ if __name__ == "__main__":
         plt.title("Precision-Recall Curve")
         plt.legend()
         plt.grid(True)
-        plt.savefig("pr_curve.png")
+        plt.savefig(os.path.join(args.report_path, "confusion_matrix.png"))
