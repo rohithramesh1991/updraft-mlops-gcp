@@ -46,9 +46,11 @@ def evaluate_op(
     y_test_path: Input[Dataset],
     report_path: Output[Metrics]
 ):
-    # Stub: all logic is in the evaluate container's main.py
+    # Stub: all logic is in the train container's main.py
     pass
 
+    
+    
 @pipeline(name="classification-pipeline")
 def classification_pipeline(
     project: str,

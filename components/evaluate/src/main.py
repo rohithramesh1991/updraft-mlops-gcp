@@ -24,11 +24,15 @@ if __name__ == "__main__":
     report = classification_report(y_test, y_pred, output_dict=True)
     report_df = pd.DataFrame(report).transpose()[['precision', 'recall', 'f1-score']]
 
+    # Make sure parent dir exists
     os.makedirs(os.path.dirname(args.report_path), exist_ok=True)
-    report_df.to_csv(os.path.join(args.report_path, "report.csv"), index=True)
-    print(f"[INFO] Metrics CSV written to: {args.report_path}")
 
-    # Log summary metrics
+    # Write metrics file for the artifact
+    artifact_path = os.environ.get("METRICS_METADATA_PATH", args.report_path)
+    report_df.to_csv(artifact_path, index=True)
+    print(f"[INFO] Metrics CSV written to: {artifact_path}")
+
+    # Log summary metrics to Vertex AI pipeline UI
     metrics = Metrics()
     metrics.log_metric("precision_avg", report_df['precision'].mean())
     metrics.log_metric("recall_avg", report_df['recall'].mean())
@@ -41,6 +45,7 @@ if __name__ == "__main__":
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
     plt.title("Confusion Matrix")
+    plt.tight_layout()
     plt.savefig("confusion_matrix.png")
 
     # Precision-Recall Curve
@@ -55,4 +60,5 @@ if __name__ == "__main__":
         plt.title("Precision-Recall Curve")
         plt.legend()
         plt.grid(True)
-        plt.savefig(os.path.join(args.report_path, "confusion_matrix.png"))
+        plt.tight_layout()
+        plt.savefig("pr_curve.png")
