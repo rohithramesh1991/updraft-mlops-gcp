@@ -9,7 +9,7 @@ outputs:
   - {name: y_test_path, type: Dataset}
 implementation:
   container:
-    image: ***-docker.pkg.dev/***/***/preprocess:latest
+    image: IMAGE_URI_PREPROCESS
     command: [
       "python", "-u", "src/main.py",
       "--input_path", {inputPath: input_path},

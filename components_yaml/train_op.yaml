@@ -7,11 +7,10 @@ outputs:
   - {name: model_path, type: Model}
 implementation:
   container:
-    image: us-central1-docker.pkg.dev/roi-demo-466711/github-docker/train:latest
+    image: IMAGE_URI_TRAIN
     command: [
       "python", "-u", "src/main.py",
       "--X_train_path", {inputPath: X_train_path},
       "--y_train_path", {inputPath: y_train_path},
       "--model_path", {outputPath: model_path}
     ]
-

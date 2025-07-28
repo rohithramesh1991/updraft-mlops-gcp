@@ -8,7 +8,7 @@ outputs:
   - {name: report_path, type: Metrics}
 implementation:
   container:
-    image: us-central1-docker.pkg.dev/roi-demo-466711/github-docker/evaluate:latest
+    image: IMAGE_URI_EVALUATE
     command: [
       "python", "-u", "src/main.py",
       "--model_path", {inputPath: model_path},

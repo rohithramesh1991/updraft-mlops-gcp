@@ -8,7 +8,7 @@ outputs:
   - {name: output_path, type: Dataset}
 implementation:
   container:
-    image: us-central1-docker.pkg.dev/roi-demo-466711/github-docker/load_data:latest
+    image: IMAGE_URI_LOAD_DATA
     command: [
       "python", "-u", "src/main.py",
       "--project", {inputValue: project},
