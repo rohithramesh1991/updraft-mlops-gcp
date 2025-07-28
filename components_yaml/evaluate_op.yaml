@@ -11,8 +11,8 @@ implementation:
     image: us-central1-docker.pkg.dev/roi-demo-466711/github-docker/evaluate:latest
     command: [
       "python", "-u", "src/main.py",
-      "--model_path", {inputValue: model_path},
-      "--X_test_path", {inputValue: X_test_path},
-      "--y_test_path", {inputValue: y_test_path},
+      "--model_path", {inputPath: model_path},
+      "--X_test_path", {inputPath: X_test_path},
+      "--y_test_path", {inputPath: y_test_path},
       "--report_path", {outputPath: report_path}
     ]
