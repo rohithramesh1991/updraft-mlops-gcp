@@ -60,11 +60,11 @@ jobs:
           python pipelines/compile_pipeline.py
 
       - name: Deploy pipeline
-              env:
-                GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
-                GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-                REGION: ${{ secrets.GCP_REGION }}
-                DATASET: ${{ secrets.BQ_DATASET }}
-                TABLE: ${{ secrets.BQ_TABLE }}
-                PIPELINE_ROOT: ${{ secrets.PIPELINE_ROOT }}
-              run: python pipelines/run_pipeline.py
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+          REGION: ${{ secrets.GCP_REGION }}
+          DATASET: ${{ secrets.BQ_DATASET }}
+          TABLE: ${{ secrets.BQ_TABLE }}
+          PIPELINE_ROOT: ${{ secrets.PIPELINE_ROOT }}
+        run: python pipelines/run_pipeline.py
