@@ -1,0 +1,18 @@
+name: load_data_op
+description: Loads data from BigQuery and writes CSV.
+inputs:
+  - {name: project, type: String}
+  - {name: dataset, type: String}
+  - {name: table, type: String}
+outputs:
+  - {name: output_path, type: Dataset}
+implementation:
+  container:
+    image: us-central1-docker.pkg.dev/roi-demo-466711/github-docker/load_data:latest
+    command: [
+      "python", "-u", "src/main.py",
+      "--project", {inputValue: project},
+      "--dataset", {inputValue: dataset},
+      "--table", {inputValue: table},
+      "--output_path", {outputPath: output_path}
+    ]

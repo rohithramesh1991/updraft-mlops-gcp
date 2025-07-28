@@ -1,0 +1,16 @@
+name: train_op
+description: Train XGBoost model and save as joblib.
+inputs:
+  - {name: X_train_path, type: Dataset}
+  - {name: y_train_path, type: Dataset}
+outputs:
+  - {name: model_path, type: Model}
+implementation:
+  container:
+    image: us-central1-docker.pkg.dev/roi-demo-466711/github-docker/train:latest
+    command: [
+      "python", "-u", "src/main.py",
+      "--X_train_path", {inputValue: X_train_path},
+      "--y_train_path", {inputValue: y_train_path},
+      "--model_path", {outputPath: model_path}
+    ]
