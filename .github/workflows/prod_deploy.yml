@@ -63,8 +63,8 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
           GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-          REGION: ${{ secrets.GCP_REGION }}
-          DATASET: ${{ secrets.BQ_DATASET }}
-          TABLE: ${{ secrets.BQ_TABLE }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          BQ_DATASET: ${{ secrets.BQ_DATASET }}
+          BQ_TABLE: ${{ secrets.BQ_TABLE }}
           PIPELINE_ROOT: ${{ secrets.PIPELINE_ROOT }}
         run: python pipelines/run_pipeline.py
