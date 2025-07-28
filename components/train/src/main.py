@@ -40,8 +40,8 @@ if __name__ == "__main__":
     y_train = pd.read_csv(args.y_train_path).values.ravel()
 
     pipe = Pipeline([
-        ('scaler', StandardScaler()),
         ('top_k_selector', TopKFeatureSelector(k=20)),
+        ('scaler', StandardScaler()),
         ('model', XGBWithAutoWeight(
             eval_metric='aucpr',
             n_estimators=100,
