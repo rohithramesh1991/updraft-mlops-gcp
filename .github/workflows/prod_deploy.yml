@@ -61,7 +61,7 @@ jobs:
       
       - name: Set up GCP credentials
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > ${{ github.workspace }}/gcp-sa-key.json
+          echo "${{ secrets.GCP_SA_KEY_B64 }}" | base64 -d > ${{ github.workspace }}/gcp-sa-key.json
         shell: bash
 
       - name: Deploy pipeline
