@@ -9,7 +9,7 @@ outputs:
   - {name: y_test_path, type: Dataset}
 implementation:
   container:
-    image: us-central1-docker.pkg.dev/roi-demo-466711/github-docker/preprocess:latest
+    image: ***-docker.pkg.dev/***/***/preprocess:latest
     command: [
       "python", "-u", "src/main.py",
       "--input_path", {inputPath: input_path},
