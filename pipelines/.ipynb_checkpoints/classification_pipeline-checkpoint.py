@@ -23,7 +23,7 @@ def preprocess_op(input_path: Input[Dataset], output_path: Output[Dataset]):
     df.to_csv(output_path.path, index=False)
 
 @component(base_image="gcr.io/YOUR_PROJECT_ID/train:TAG")
-def train_op(input_path: Input[Dataset], model_path: Output[Model], X_test_path: Output[Dataset], y_test_path: Output[Dataset]):
+def train_op(input_path: Input[Dataset], model_path: Output[Model], x_test_path: Output[Dataset], y_test_path: Output[Dataset]):
     import pandas as pd
     import joblib
     from sklearn.model_selection import train_test_split
@@ -41,17 +41,17 @@ def train_op(input_path: Input[Dataset], model_path: Output[Model], X_test_path:
     model = XGBClassifier()
     model.fit(X_train_scaled, y_train)
     joblib.dump(model, model_path.path)
-    pd.DataFrame(X_test_scaled).to_csv(X_test_path.path, index=False)
+    pd.DataFrame(X_test_scaled).to_csv(x_test_path.path, index=False)
     pd.DataFrame(y_test).to_csv(y_test_path.path, index=False)
 
 @component(base_image="gcr.io/YOUR_PROJECT_ID/evaluate:TAG")
-def evaluate_op(model_path: Input[Model], X_test_path: Input[Dataset], y_test_path: Input[Dataset], report_path: Output[Metrics]):
+def evaluate_op(model_path: Input[Model], x_test_path: Input[Dataset], y_test_path: Input[Dataset], report_path: Output[Metrics]):
     import pandas as pd
     import joblib
     from sklearn.metrics import classification_report
 
     model = joblib.load(model_path.path)
-    X_test = pd.read_csv(X_test_path.path)
+    X_test = pd.read_csv(x_test_path.path)
     y_test = pd.read_csv(y_test_path.path).values.ravel()
     y_pred = model.predict(X_test)
     report = classification_report(y_test, y_pred, output_dict=True)
@@ -64,6 +64,6 @@ def classification_pipeline(project: str, dataset: str, table: str):
     t = train_op(input_path=p.outputs["output_path"])
     evaluate_op(
         model_path=t.outputs["model_path"],
-        X_test_path=t.outputs["X_test_path"],
+        x_test_path=t.outputs["x_test_path"],
         y_test_path=t.outputs["y_test_path"]
     )

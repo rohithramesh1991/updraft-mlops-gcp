@@ -30,12 +30,12 @@ class XGBWithAutoWeight(XGBClassifier, ClassifierMixin):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--X_train_path', type=str, required=True)
+    parser.add_argument('--x_train_path', type=str, required=True)
     parser.add_argument('--y_train_path', type=str, required=True)
     parser.add_argument('--model_path', type=str, required=True)
     args = parser.parse_args()
 
-    X_train = pd.read_csv(args.X_train_path)
+    X_train = pd.read_csv(args.x_train_path)
     y_train = pd.read_csv(args.y_train_path).values.ravel()
 
     pipe = Pipeline([

@@ -3,8 +3,8 @@ description: Feature engineering and train/test split.
 inputs:
   - {name: input_path, type: Dataset}
 outputs:
-  - {name: X_train_path, type: Dataset}
-  - {name: X_test_path, type: Dataset}
+  - {name: x_train_path, type: Dataset}
+  - {name: x_test_path, type: Dataset}
   - {name: y_train_path, type: Dataset}
   - {name: y_test_path, type: Dataset}
 implementation:
@@ -13,8 +13,8 @@ implementation:
     command: [
       "python", "-u", "src/main.py",
       "--input_path", {inputPath: input_path},
-      "--X_train_path", {outputPath: X_train_path},
-      "--X_test_path", {outputPath: X_test_path},
+      "--x_train_path", {outputPath: x_train_path},
+      "--x_test_path", {outputPath: x_test_path},
       "--y_train_path", {outputPath: y_train_path},
       "--y_test_path", {outputPath: y_test_path}
     ]

@@ -2,7 +2,7 @@ name: evaluate_op
 description: Evaluate the trained model and write a metrics CSV.
 inputs:
   - {name: model_path, type: Model}
-  - {name: X_test_path, type: Dataset}
+  - {name: x_test_path, type: Dataset}
   - {name: y_test_path, type: Dataset}
 outputs:
   - {name: report_path, type: Metrics}
@@ -12,7 +12,7 @@ implementation:
     command: [
       "python", "-u", "src/main.py",
       "--model_path", {inputPath: model_path},
-      "--X_test_path", {inputPath: X_test_path},
+      "--x_test_path", {inputPath: x_test_path},
       "--y_test_path", {inputPath: y_test_path},
       "--report_path", {outputPath: report_path}
     ]

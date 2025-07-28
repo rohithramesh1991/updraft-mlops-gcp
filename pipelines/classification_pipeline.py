@@ -23,11 +23,11 @@ def classification_pipeline(
         input_path=d.outputs["output_path"]
     )
     t = train_op(
-        X_train_path=p.outputs["x_train_path"],
+        x_train_path=p.outputs["x_train_path"],
         y_train_path=p.outputs["y_train_path"]
     )
     evaluate_op(
         model_path=t.outputs["model_path"],
-        X_test_path=p.outputs["x_test_path"],
+        x_test_path=p.outputs["x_test_path"],
         y_test_path=p.outputs["y_test_path"]
     )

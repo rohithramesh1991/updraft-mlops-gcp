@@ -11,14 +11,14 @@ from kfp.v2.dsl import Metrics
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', type=str, required=True)
-    parser.add_argument('--X_test_path', type=str, required=True)
+    parser.add_argument('--x_test_path', type=str, required=True)
     parser.add_argument('--y_test_path', type=str, required=True)
     parser.add_argument('--report_path', type=str, required=True)
     args = parser.parse_args()
     print(f"[DEBUG] args.report_path = {args.report_path}")
 
     pipe = joblib.load(args.model_path)
-    X_test = pd.read_csv(args.X_test_path)
+    X_test = pd.read_csv(args.x_test_path)
     y_test = pd.read_csv(args.y_test_path).values.ravel()
     y_pred = pipe.predict(X_test)
 
