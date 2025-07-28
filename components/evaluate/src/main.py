@@ -6,6 +6,8 @@ from sklearn.metrics import classification_report, confusion_matrix, average_pre
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from kfp.v2.dsl import Metrics
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', type=str, required=True)
@@ -18,15 +20,19 @@ if __name__ == "__main__":
     X_test = pd.read_csv(args.X_test_path)
     y_test = pd.read_csv(args.y_test_path).values.ravel()
     y_pred = pipe.predict(X_test)
-    report = classification_report(y_test, y_pred, output_dict=True)
 
+    report = classification_report(y_test, y_pred, output_dict=True)
     report_df = pd.DataFrame(report).transpose()[['precision', 'recall', 'f1-score']]
 
-    # Ensure parent folder exists
     os.makedirs(os.path.dirname(args.report_path), exist_ok=True)
-
     report_df.to_csv(args.report_path, index=True)
-    print(f"Metrics saved to: {args.report_path}")
+    print(f"[INFO] Metrics CSV written to: {args.report_path}")
+
+    # Log summary metrics
+    metrics = Metrics()
+    metrics.log_metric("precision_avg", report_df['precision'].mean())
+    metrics.log_metric("recall_avg", report_df['recall'].mean())
+    metrics.log_metric("f1_avg", report_df['f1-score'].mean())
 
     # Confusion matrix plot
     cm = confusion_matrix(y_test, y_pred)
