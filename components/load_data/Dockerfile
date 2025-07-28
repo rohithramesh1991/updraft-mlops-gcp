@@ -1,5 +1,8 @@
 FROM python:3.10-slim
 WORKDIR /app
+
+RUN pip install --upgrade pip && \
+    pip install pandas scikit-learn joblib google-cloud-bigquery db-dtypes
+
 COPY src/ ./src
-RUN pip install pandas google-cloud-bigquery
 ENTRYPOINT ["python", "src/main.py"]
