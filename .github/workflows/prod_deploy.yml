@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install dependencies
-        run: pip install kfp google-cloud-aiplatform
+        run: pip install kfp google-cloud-aiplatform google-cloud-pipeline-components
       
       - name: Replace image URIs in pipeline
         run: |
