@@ -4,24 +4,32 @@ from google_cloud_pipeline_components.v1.endpoint import ModelDeployOp
 from kfp.dsl import pipeline
 import kfp
 
+# Only load train_op once, and never call it directly!
 load_data_op = kfp.components.load_component_from_file('components_yaml/load_data_op.yaml')
 preprocess_op = kfp.components.load_component_from_file('components_yaml/preprocess_op.yaml')
+train_op = kfp.components.load_component_from_file('components_yaml/train_op.yaml')
 evaluate_op = kfp.components.load_component_from_file('components_yaml/evaluate_op.yaml')
+
+# Wrap your loaded train_op as a Vertex CustomTrainingJobOp
+TrainJob = create_custom_training_job_from_component(
+    component_spec=train_op,
+    display_name="train-xgb-customjob",
+    replica_count=1,
+    machine_type="n1-standard-2",
+    boot_disk_size_gb=100,
+    base_output_directory="gs://{{project}}/pipeline-root/train"   # You can update to use a param if desired
+)
 
 @pipeline(name='classification-pipeline')
 def classification_pipeline(project: str, dataset: str, table: str):
     d = load_data_op(project=project, dataset=dataset, table=table)
     p = preprocess_op(input_path=d.outputs['output_path'])
 
-    TrainJob = create_custom_training_job_from_component(
-        component_spec='components_yaml/train_op.yaml',
-        display_name="train-xgb-customjob",
-        replica_count=1,
-        machine_type="n1-standard-2",
-        boot_disk_size_gb=100,
-        base_output_directory=f"gs://{project}/pipeline-root/train"
+    # ONLY call the wrapped TrainJob, never train_op directly!
+    t = TrainJob(
+        x_train_path=p.outputs['x_train_path'],
+        y_train_path=p.outputs['y_train_path']
     )
-    t = TrainJob(x_train_path=p.outputs['x_train_path'], y_train_path=p.outputs['y_train_path'])
 
     eval_task = evaluate_op(
         model_path=t.outputs['model_path'],
