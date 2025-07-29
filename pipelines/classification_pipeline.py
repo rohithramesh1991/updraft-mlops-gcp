@@ -34,12 +34,12 @@ def classification_pipeline(
         y_train_path=p.outputs["y_train_path"]
     )
     evaluate_op(
-        model_path=t.outputs["model_dir"],
+        model_dir=t.outputs["model_dir"],
         x_test_path=p.outputs["x_test_path"],
         y_test_path=p.outputs["y_test_path"]
     )
     deploy = deploy_model_op(
-        model_path=t.outputs["model_dir"],
+        model_dir=t.outputs["model_dir"],
         project=project,
         region=region,
         display_name=model_display_name,
