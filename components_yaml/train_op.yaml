@@ -5,8 +5,7 @@ inputs:
   - {name: y_train_path, type: Dataset}
 outputs:
   - name: model_path
-    type: Artifact[google.UnmanagedContainerModel]
-
+    type: Model
 implementation:
   container:
     image: IMAGE_URI_TRAIN

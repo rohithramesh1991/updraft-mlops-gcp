@@ -52,6 +52,5 @@ if __name__ == "__main__":
         ))
     ])
     pipe.fit(X_train, y_train)
-    model_dir = args.model_path
-    os.makedirs(model_dir, exist_ok=True)
-    joblib.dump(pipe, os.path.join(model_dir, "model.joblib"))
+    os.makedirs(os.path.dirname(args.model_path), exist_ok=True)
+    joblib.dump(pipe, args.model_path)

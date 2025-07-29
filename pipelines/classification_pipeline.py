@@ -43,7 +43,7 @@ def classification_pipeline(project: str, dataset: str, table: str, pipeline_roo
         project=project,
         location="us-central1",
         display_name="classification-xgb-model",
-        unmanaged_container_model=t.outputs['model_path']
+        artifact_uri=t.outputs["model_path"]
     )
     deploy_task = ModelDeployOp(
         model=uploaded.outputs['model'],
