@@ -3,31 +3,8 @@ import argparse
 import pandas as pd
 import joblib
 from xgboost import XGBClassifier
-from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-
-class TopKFeatureSelector(BaseEstimator, TransformerMixin):
-    def __init__(self, k=20):
-        self.k = k
-        self.top_features_ = []
-    def fit(self, X, y):
-        model = XGBClassifier(
-            eval_metric='aucpr', n_estimators=100, max_depth=3, learning_rate=0.1, tree_method='hist'
-        )
-        model.fit(X, y)
-        importances = pd.Series(model.feature_importances_, index=X.columns)
-        self.top_features_ = importances.nlargest(self.k).index.tolist()
-        return self
-    def transform(self, X):
-        return X[self.top_features_]
-
-class XGBWithAutoWeight(XGBClassifier, ClassifierMixin):
-    def fit(self, X, y, **kwargs):
-        pos = (y == 1).sum()
-        neg = (y == 0).sum()
-        self.scale_pos_weight = neg / pos
-        return super().fit(X, y, **kwargs)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -38,17 +15,18 @@ if __name__ == "__main__":
 
     X_train = pd.read_csv(args.x_train_path)
     y_train = pd.read_csv(args.y_train_path).values.ravel()
+    scale_pos_weight = (y_train == 0).sum() / (y_train == 1).sum()
 
     pipe = Pipeline([
-        ('top_k_selector', TopKFeatureSelector(k=20)),
-        ('scaler', StandardScaler()),
-        ('model', XGBWithAutoWeight(
+        ('scaler', StandardScaler()),  # Optional, use only if needed
+        ('model', XGBClassifier(
             eval_metric='aucpr',
             n_estimators=100,
             max_depth=3,
             learning_rate=0.1,
             tree_method='hist',
-            reg_lambda=5
+            reg_lambda=5,
+            scale_pos_weight=scale_pos_weight  # Set weight here!
         ))
     ])
     pipe.fit(X_train, y_train)
