@@ -1,4 +1,4 @@
-from kfp.v2 import dsl
+from kfp.v2 import dsl, importer
 import kfp
 from kfp.components import importer_node
 from google_cloud_pipeline_components.types import artifact_types
@@ -31,7 +31,7 @@ def classification_pipeline(project: str, dataset: str, table: str):
                     x_test_path=p.outputs["x_test_path"],
                     y_test_path=p.outputs["y_test_path"])
 
-    model_importer = importer_node.importer(
+    model_importer = importer(
         artifact_uri=t.outputs["model_path"],
         artifact_class=artifact_types.UnmanagedContainerModel,
         metadata={
