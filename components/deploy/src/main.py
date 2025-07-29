@@ -30,9 +30,11 @@ if __name__ == "__main__":
     parser.add_argument('--machine_type', type=str, required=True)
     parser.add_argument('--min_replica_count', type=int, required=True)
     parser.add_argument('--max_replica_count', type=int, required=True)
-    parser.add_argument('--traffic_split', type=str, required=True)  # Will parse as JSON string
+    parser.add_argument('--traffic_split', type=str, required=True)
     parser.add_argument('--endpoint_uri', type=str, required=True)
     args = parser.parse_args()
+    traffic_split = json.loads(args.traffic_split)
+    traffic_split = {k: int(v) for k, v in traffic_split.items()}
     deploy_model(
         project=args.project,
         region=args.region,
@@ -41,6 +43,6 @@ if __name__ == "__main__":
         machine_type=args.machine_type,
         min_replica_count=args.min_replica_count,
         max_replica_count=args.max_replica_count,
-        traffic_split=json.loads(args.traffic_split),
+        traffic_split=traffic_split,
         endpoint_uri=args.endpoint_uri,
     )
