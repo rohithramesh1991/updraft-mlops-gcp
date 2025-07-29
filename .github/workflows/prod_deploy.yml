@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        component: [load_data, preprocess, train, evaluate]
+        component: [load_data, preprocess, train, evaluate, deploy]
     steps:
       - uses: actions/checkout@v2
 
