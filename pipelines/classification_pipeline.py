@@ -1,7 +1,7 @@
 from google_cloud_pipeline_components.v1.custom_job import create_custom_training_job_from_component
 from google_cloud_pipeline_components.v1.model import ModelUploadOp
 from google_cloud_pipeline_components.v1.endpoint import ModelDeployOp
-from kfp.dsl import Pipeline
+from kfp.dsl import pipeline
 import kfp
 
 load_data_op = kfp.components.load_component_from_file('components_yaml/load_data_op.yaml')
@@ -9,7 +9,7 @@ preprocess_op = kfp.components.load_component_from_file('components_yaml/preproc
 train_op = kfp.components.load_component_from_file('components_yaml/train_op.yaml')
 evaluate_op = kfp.components.load_component_from_file('components_yaml/evaluate_op.yaml')
 
-@Pipeline(name='classification-pipeline')
+@pipeline(name='classification-pipeline')
 def classification_pipeline(project: str, dataset: str, table: str):
     d = load_data_op(project=project, dataset=dataset, table=table)
     p = preprocess_op(input_path=d.outputs['output_path'])
