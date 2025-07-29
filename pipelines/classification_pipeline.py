@@ -14,7 +14,8 @@ evaluate_op = kfp.components.load_component_from_file('components_yaml/evaluate_
 def classification_pipeline(
     project: str,
     dataset: str,
-    table: str
+    table: str,
+    region: str
 ):
     d = load_data_op(
         project=project,
@@ -36,7 +37,7 @@ def classification_pipeline(
     
     uploaded = ModelUploadOp(
         project=project,
-        location=project and None,  # use default region from pipeline runtime if omitted
+        location=region,
         display_name="classification-xgb-model",
         unmanaged_container_model=t.outputs["model_path"]
     )
@@ -44,7 +45,7 @@ def classification_pipeline(
     # (Optional) Create a dedicated endpoint first
     endpoint = EndpointCreateOp(
         project=project,
-        location=None,  # use pipeline's default region
+        location=region,
         display_name="classification-endpoint"
     )
 
