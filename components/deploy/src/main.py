@@ -1,3 +1,4 @@
+import os
 import argparse
 from google.cloud import aiplatform
 import json
@@ -18,6 +19,11 @@ def deploy_model(project, region, model_dir, display_name,
         traffic_split=traffic_split,
         sync=True,
     )
+    
+    # ------- ------------------------------------------------#
+    os.makedirs(os.path.dirname(endpoint_uri), exist_ok=True)
+    # ------------- ------------------------------------------#
+    
     with open(endpoint_uri, "w") as f:
         f.write(endpoint.resource_name)
 
