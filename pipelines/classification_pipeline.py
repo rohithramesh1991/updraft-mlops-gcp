@@ -31,11 +31,21 @@ def classification_pipeline(project: str, dataset: str, table: str):
                     x_test_path=p.outputs["x_test_path"],
                     y_test_path=p.outputs["y_test_path"])
 
+    model_importer = importer(
+    artifact_uri=t.outputs["model_path"].uri,
+    artifact_class=artifact_types.UnmanagedContainerModel,
+    metadata={
+        "containerSpec": {
+            "imageUri": "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-0:latest"
+        }
+    }
+)
+
     uploaded = ModelUploadOp(
         project=project,
         location="us-central1",
         display_name="classification-xgb-model",
-        unmanaged_container_model=t.outputs["model_path"]
+        unmanaged_container_model=model_importer.outputs["artifact"]
     )
 
 
