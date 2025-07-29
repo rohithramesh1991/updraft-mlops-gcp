@@ -1,6 +1,6 @@
-from kfp.v2 import dsl, importer
+from kfp.v2 import dsl
 import kfp
-from kfp.components import importer_node
+from kfp.v2.dsl import importer
 from google_cloud_pipeline_components.types import artifact_types
 from google_cloud_pipeline_components.v1.custom_job import create_custom_training_job_from_component
 from google_cloud_pipeline_components.v1.model import ModelUploadOp
