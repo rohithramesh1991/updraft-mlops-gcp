@@ -6,33 +6,6 @@ from sklearn.metrics import classification_report, confusion_matrix, average_pre
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
-from xgboost import XGBClassifier
-
-# --- BEGIN Custom classes required to load pipeline ---
-class TopKFeatureSelector(BaseEstimator, TransformerMixin):
-    def __init__(self, k=20):
-        self.k = k
-        self.top_features_ = []
-    def fit(self, X, y):
-        model = XGBClassifier(
-            eval_metric='aucpr', n_estimators=100, max_depth=3, learning_rate=0.1, tree_method='hist'
-        )
-        model.fit(X, y)
-        importances = pd.Series(model.feature_importances_, index=X.columns)
-        self.top_features_ = importances.nlargest(self.k).index.tolist()
-        return self
-    def transform(self, X):
-        return X[self.top_features_]
-
-class XGBWithAutoWeight(XGBClassifier, ClassifierMixin):
-    def fit(self, X, y, **kwargs):
-        pos = (y == 1).sum()
-        neg = (y == 0).sum()
-        self.scale_pos_weight = neg / pos
-        return super().fit(X, y, **kwargs)
-# --- END Custom classes ---
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_dir', type=str, required=True)
@@ -44,7 +17,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(f"[DEBUG] args.report_path = {args.report_path}")
 
-    pipe = joblib.load(os.path.join(args.model_dir, "model.joblib")) 
+    pipe = joblib.load(os.path.join(args.model_dir, "model.joblib"))
     X_test = pd.read_csv(args.x_test_path)
     y_test = pd.read_csv(args.y_test_path).values.ravel()
     y_pred = pipe.predict(X_test)
@@ -57,12 +30,6 @@ if __name__ == "__main__":
 
     # Write metrics file for the artifact
     report_df.to_csv(args.report_path, index=True)
-
-    # Log summary metrics to Vertex AI pipeline UI
-    # metrics = Metrics()
-    # metrics.log_metric("precision_avg", report_df['precision'].mean())
-    # metrics.log_metric("recall_avg", report_df['recall'].mean())
-    # metrics.log_metric("f1_avg", report_df['f1-score'].mean())
 
     # Confusion matrix plot
     cm = confusion_matrix(y_test, y_pred)
