@@ -6,7 +6,6 @@ import kfp
 
 load_data_op = kfp.components.load_component_from_file('components_yaml/load_data_op.yaml')
 preprocess_op = kfp.components.load_component_from_file('components_yaml/preprocess_op.yaml')
-train_op = kfp.components.load_component_from_file('components_yaml/train_op.yaml')
 evaluate_op = kfp.components.load_component_from_file('components_yaml/evaluate_op.yaml')
 
 @pipeline(name='classification-pipeline')
@@ -15,7 +14,7 @@ def classification_pipeline(project: str, dataset: str, table: str):
     p = preprocess_op(input_path=d.outputs['output_path'])
 
     TrainJob = create_custom_training_job_from_component(
-        component_spec=train_op,
+        component_spec='components_yaml/train_op.yaml',
         display_name="train-xgb-customjob",
         replica_count=1,
         machine_type="n1-standard-2",
