@@ -36,30 +36,20 @@ def classification_pipeline(
         y_test_path=p.outputs["y_test_path"]
     )
     
-    import_unmanaged_model = importer(
-        artifact_uri=t.outputs['model_path'],
-        artifact_class=artifact_types.UnmanagedContainerModel,
-        metadata={
-            'containerSpec': {
-                'imageUri': 'us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest'
-            }
-        }
-    )
     uploaded = ModelUploadOp(
-        project=project,
-        location=region,
-        display_name="classification-xgb-model",
-        unmanaged_container_model=import_unmanaged_model.outputs['artifact']
-    )
+    project=project,
+    location=region,
+    display_name="classification-xgb-model",
+    unmanaged_container_model=t.outputs["model_path"],
+    serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest"
+)
 
-    # (Optional) Create a dedicated endpoint first
     endpoint = EndpointCreateOp(
         project=project,
         location=region,
         display_name="classification-endpoint"
     )
 
-    # Deploy the model to endpoint with autoscaling
     deploy_task = ModelDeployOp(
         model=uploaded.outputs['model'],
         endpoint=endpoint.outputs['endpoint'],
