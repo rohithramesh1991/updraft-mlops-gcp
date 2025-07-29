@@ -20,8 +20,7 @@ def classification_pipeline(project: str, dataset: str, table: str):
         replica_count=1,
         machine_type="n1-standard-2",
         boot_disk_size_gb=100,
-        base_output_directory=f"gs://{project}/pipeline-root/train",
-        project=project
+        base_output_directory=f"gs://{project}/pipeline-root/train"
     )
     t = TrainJob(x_train_path=p.outputs['x_train_path'], y_train_path=p.outputs['y_train_path'])
 
