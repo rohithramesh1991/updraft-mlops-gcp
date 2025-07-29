@@ -38,7 +38,7 @@ def classification_pipeline(
         project=project,
         location=project and None,  # use default region from pipeline runtime if omitted
         display_name="classification-xgb-model",
-        model=t.outputs["model_path"]
+        unmanaged_container_model=t.outputs["model_path"]
     )
 
     # (Optional) Create a dedicated endpoint first
