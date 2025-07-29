@@ -1,7 +1,7 @@
 name: deploy_model_op
 description: Register and deploy the trained model to Vertex AI endpoint.
 inputs:
-  - {name: model_path, type: Model}
+  - {name: model_dir, type: Model}
   - {name: project, type: String}
   - {name: region, type: String}
   - {name: display_name, type: String}
@@ -16,7 +16,7 @@ implementation:
     image: IMAGE_URI_DEPLOY
     command: [
       "python", "-u", "src/main.py",
-      "--model_path", {inputPath: model_path},
+      "--model_dir", {inputPath: model_dir},
       "--project", {inputValue: project},
       "--region", {inputValue: region},
       "--display_name", {inputValue: display_name},

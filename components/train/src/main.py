@@ -33,7 +33,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--x_train_path', type=str, required=True)
     parser.add_argument('--y_train_path', type=str, required=True)
-    parser.add_argument('--model_path', type=str, required=True)
+    parser.add_argument('--model_dir', type=str, required=True)
     args = parser.parse_args()
 
     X_train = pd.read_csv(args.x_train_path)
@@ -52,5 +52,5 @@ if __name__ == "__main__":
         ))
     ])
     pipe.fit(X_train, y_train)
-    os.makedirs(os.path.dirname(args.model_path), exist_ok=True)
-    joblib.dump(pipe, args.model_path)
+    os.makedirs(args.model_dir, exist_ok=True)
+    joblib.dump(pipe, os.path.join(args.model_dir, "model.joblib"))

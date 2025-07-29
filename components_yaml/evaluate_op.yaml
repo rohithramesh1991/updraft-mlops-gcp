@@ -1,7 +1,7 @@
 name: evaluate_op
 description: Evaluate the trained model and write a metrics CSV.
 inputs:
-  - {name: model_path, type: Model}
+  - {name: model_dir, type: Model}
   - {name: x_test_path, type: Dataset}
   - {name: y_test_path, type: Dataset}
 outputs:
@@ -13,7 +13,7 @@ implementation:
     image: IMAGE_URI_EVALUATE
     command: [
       "python", "-u", "src/main.py",
-      "--model_path", {inputPath: model_path},
+      "--model_dir", {inputPath: model_dir},
       "--x_test_path", {inputPath: x_test_path},
       "--y_test_path", {inputPath: y_test_path},
       "--report_path", {outputPath: report_path},

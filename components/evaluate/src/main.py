@@ -35,7 +35,7 @@ class XGBWithAutoWeight(XGBClassifier, ClassifierMixin):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, required=True)
+    parser.add_argument('--model_dir', type=str, required=True)
     parser.add_argument('--x_test_path', type=str, required=True)
     parser.add_argument('--y_test_path', type=str, required=True)
     parser.add_argument('--report_path', type=str, required=True)
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(f"[DEBUG] args.report_path = {args.report_path}")
 
-    pipe = joblib.load(args.model_path)
+    pipe = joblib.load(os.path.join(args.model_dir, "model.joblib")) 
     X_test = pd.read_csv(args.x_test_path)
     y_test = pd.read_csv(args.y_test_path).values.ravel()
     y_pred = pipe.predict(X_test)

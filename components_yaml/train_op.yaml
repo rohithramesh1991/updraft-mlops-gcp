@@ -4,14 +4,13 @@ inputs:
   - {name: x_train_path, type: Dataset}
   - {name: y_train_path, type: Dataset}
 outputs:
-  - name: model_path
-    type: Artifact[google.UnmanagedContainerModel]
+  - {name: model_dir, type: Model}
 implementation:
   container:
     image: IMAGE_URI_TRAIN
-    command: [
-      "python", "-u", "src/main.py",
-      "--x_train_path", {inputPath: x_train_path},
-      "--y_train_path", {inputPath: y_train_path},
-      "--model_path", {outputPath: model_path}
-    ]
+  command: [
+        "python", "-u", "src/main.py",
+        "--x_train_path", {inputPath: x_train_path},
+        "--y_train_path", {inputPath: y_train_path},
+        "--model_dir", {outputPath: model_dir}
+      ]
