@@ -1,8 +1,9 @@
 from google_cloud_pipeline_components.v1.custom_job import create_custom_training_job_from_component
 from google_cloud_pipeline_components.v1.model import ModelUploadOp
 from google_cloud_pipeline_components.v1.endpoint import ModelDeployOp, EndpointCreateOp
-from kfp.dsl import pipeline
+from kfp.dsl import pipeline, importer
 import kfp
+from google_cloud_pipeline_components.types import artifact_types
 
 # Load component YAMLs
 load_data_op = kfp.components.load_component_from_file('components_yaml/load_data_op.yaml')
@@ -35,11 +36,20 @@ def classification_pipeline(
         y_test_path=p.outputs["y_test_path"]
     )
     
+    import_unmanaged_model = importer(
+        artifact_uri=t.outputs['model_path'],
+        artifact_class=artifact_types.UnmanagedContainerModel,
+        metadata={
+            'containerSpec': {
+                'imageUri': 'us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest'
+            }
+        }
+    )
     uploaded = ModelUploadOp(
         project=project,
         location=region,
         display_name="classification-xgb-model",
-        unmanaged_container_model=t.outputs["model_path"]
+        unmanaged_container_model=import_unmanaged_model.outputs['artifact']
     )
 
     # (Optional) Create a dedicated endpoint first
