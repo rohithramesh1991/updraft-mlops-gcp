@@ -32,7 +32,7 @@ def classification_pipeline(project: str, dataset: str, table: str):
                     y_test_path=p.outputs["y_test_path"])
 
     model_importer = importer(
-    artifact_uri=t.outputs["model_path"].uri,
+    artifact_uri=t.outputs["model_path"].resource_name,
     artifact_class=artifact_types.UnmanagedContainerModel,
     metadata={
         "containerSpec": {
