@@ -17,7 +17,8 @@ def main():
         parameter_values={
             "project": project,
             "dataset": dataset,
-            "table": table
+            "table": table,
+            "pipeline_root": pipeline_root
         }
     )
     job.run(sync=True)

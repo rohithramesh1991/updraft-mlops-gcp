@@ -10,22 +10,24 @@ preprocess_op = kfp.components.load_component_from_file('components_yaml/preproc
 train_op = kfp.components.load_component_from_file('components_yaml/train_op.yaml')
 evaluate_op = kfp.components.load_component_from_file('components_yaml/evaluate_op.yaml')
 
-# Wrap your loaded train_op as a Vertex CustomTrainingJobOp
-TrainJob = create_custom_training_job_from_component(
-    component_spec=train_op,
-    display_name="train-xgb-customjob",
-    replica_count=1,
-    machine_type="n1-standard-2",
-    boot_disk_size_gb=100,
-    base_output_directory="gs://{{project}}/pipeline-root/train"   # You can update to use a param if desired
-)
+
+def make_train_job(base_output_directory):
+    return create_custom_training_job_from_component(
+        component_spec=train_op,
+        display_name="train-xgb-customjob",
+        replica_count=1,
+        machine_type="n1-standard-2",
+        boot_disk_size_gb=100,
+        base_output_directory=base_output_directory
+    )
 
 @pipeline(name='classification-pipeline')
-def classification_pipeline(project: str, dataset: str, table: str):
+def classification_pipeline(project: str, dataset: str, table: str, pipeline_root: str):
     d = load_data_op(project=project, dataset=dataset, table=table)
     p = preprocess_op(input_path=d.outputs['output_path'])
 
-    # ONLY call the wrapped TrainJob, never train_op directly!
+    # Instantiate TrainJob INSIDE the pipeline, so pipeline_root is available
+    TrainJob = make_train_job(f"{pipeline_root}/train")
     t = TrainJob(
         x_train_path=p.outputs['x_train_path'],
         y_train_path=p.outputs['y_train_path']
