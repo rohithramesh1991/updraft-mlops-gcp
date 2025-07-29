@@ -34,7 +34,7 @@ def classification_pipeline(project: str, dataset: str, table: str):
         project=project,
         location="us-central1",
         display_name="classification-xgb-model",
-        model=t.outputs['model_path']
+        unmanaged_container_model=t.outputs['model_path']
     )
     deploy_task = ModelDeployOp(
         model=uploaded.outputs['model'],
