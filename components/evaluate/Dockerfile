@@ -3,7 +3,7 @@ WORKDIR /app
 
 # Install ALL dependencies, including BigQuery and db-dtypes
 RUN pip install --upgrade pip && \
-    pip install pandas scikit-learn==1.0.2 xgboost==1.5.1 joblib==1.1.0 google-cloud-bigquery db-dtypes seaborn matplotlib
+    pip install pandas scikit-learn==1.0.2 xgboost==1.5.1 joblib==1.1.0 google-cloud-bigquery db-dtypes seaborn matplotlib numpy==1.21.6
 
 COPY src/ ./src
 
