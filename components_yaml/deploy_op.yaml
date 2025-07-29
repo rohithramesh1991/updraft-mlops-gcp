@@ -1,0 +1,28 @@
+name: deploy_model_op
+description: Register and deploy the trained model to Vertex AI endpoint.
+inputs:
+  - {name: model_path, type: Model}
+  - {name: project, type: String}
+  - {name: region, type: String}
+  - {name: display_name, type: String}
+  - {name: machine_type, type: String}
+  - {name: min_replica_count, type: Integer}
+  - {name: max_replica_count, type: Integer}
+  - {name: traffic_split, type: String}
+outputs:
+  - {name: endpoint_uri, type: String}
+implementation:
+  container:
+    image: IMAGE_URI_DEPLOY
+    command: [
+      "python", "-u", "src/main.py",
+      "--model_path", {inputPath: model_path},
+      "--project", {inputValue: project},
+      "--region", {inputValue: region},
+      "--display_name", {inputValue: display_name},
+      "--machine_type", {inputValue: machine_type},
+      "--min_replica_count", {inputValue: min_replica_count},
+      "--max_replica_count", {inputValue: max_replica_count},
+      "--traffic_split", {inputValue: traffic_split},
+      "--endpoint_uri", {outputPath: endpoint_uri}
+    ]

@@ -18,7 +18,12 @@ def main():
             "project": project,
             "dataset": dataset,
             "table": table,
-            "region":region
+            "region":region,
+            "model_display_name": "xgb-pipeline-model",
+            "machine_type": "n1-standard-2",
+            "min_replica_count": 1,
+            "max_replica_count": 2,
+            "traffic_split": '{"0": "100"}'
         }
     )
     job.run(sync=True)

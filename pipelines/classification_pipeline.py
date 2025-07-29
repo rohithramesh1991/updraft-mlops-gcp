@@ -1,22 +1,25 @@
-from google_cloud_pipeline_components.v1.custom_job import create_custom_training_job_from_component
-from google_cloud_pipeline_components.v1.model import ModelUploadOp
-from google_cloud_pipeline_components.v1.endpoint import ModelDeployOp, EndpointCreateOp
-from kfp.dsl import pipeline, importer
+from kfp.v2 import dsl
+from kfp.v2.dsl import pipeline, Dataset, Model, Metrics
 import kfp
-from google_cloud_pipeline_components.types import artifact_types
 
 # Load component YAMLs
 load_data_op = kfp.components.load_component_from_file('components_yaml/load_data_op.yaml')
 preprocess_op = kfp.components.load_component_from_file('components_yaml/preprocess_op.yaml')
 train_op = kfp.components.load_component_from_file('components_yaml/train_op.yaml')
 evaluate_op = kfp.components.load_component_from_file('components_yaml/evaluate_op.yaml')
+deploy_model_op = kfp.components.load_component_from_file('components_yaml/deploy_model_op.yaml')
 
 @pipeline(name='classification-pipeline')
 def classification_pipeline(
     project: str,
     dataset: str,
     table: str,
-    region: str
+    region: str,
+    model_display_name: str,
+    machine_type: str,
+    min_replica_count: int,
+    max_replica_count: int,
+    traffic_split: str
 ):
     d = load_data_op(
         project=project,
@@ -35,33 +38,13 @@ def classification_pipeline(
         x_test_path=p.outputs["x_test_path"],
         y_test_path=p.outputs["y_test_path"]
     )
-    
-    importer_node = importer(
-    artifact_uri=t.outputs['model_path'],
-    artifact_class=artifact_types.UnmanagedContainerModel,
-    metadata={'containerSpec': {'imageUri': 'us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest'}}
-)
-
-    
-    uploaded = ModelUploadOp(
+    deploy = deploy_model_op(
+        model_path=t.outputs["model_path"],
         project=project,
-        location=region,
-        display_name="classification-xgb-model",
-        unmanaged_container_model=importer_node.output
-    )
-
-    endpoint = EndpointCreateOp(
-        project=project,
-        location=region,
-        display_name="classification-endpoint"
-    )
-
-    deploy_task = ModelDeployOp(
-        model=uploaded.outputs['model'],
-        endpoint=endpoint.outputs['endpoint'],
-        deployed_model_display_name="classification-xgb",
-        dedicated_resources_machine_type="n1-standard-2",
-        dedicated_resources_min_replica_count=1,
-        dedicated_resources_max_replica_count=2,
-        traffic_split={"0": "100"}
+        region=region,
+        display_name=model_display_name,
+        machine_type=machine_type,
+        min_replica_count=min_replica_count,
+        max_replica_count=max_replica_count,
+        traffic_split=traffic_split
     )
