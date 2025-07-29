@@ -8,9 +8,9 @@ outputs:
 implementation:
   container:
     image: IMAGE_URI_TRAIN
-  command: [
-        "python", "-u", "src/main.py",
-        "--x_train_path", {inputPath: x_train_path},
-        "--y_train_path", {inputPath: y_train_path},
-        "--model_dir", {outputPath: model_dir}
-      ]
+    command: [
+          "python", "-u", "src/main.py",
+          "--x_train_path", {inputPath: x_train_path},
+          "--y_train_path", {inputPath: y_train_path},
+          "--model_dir", {outputPath: model_dir}
+        ]
