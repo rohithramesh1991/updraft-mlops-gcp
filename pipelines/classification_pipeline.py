@@ -39,8 +39,12 @@ def classification_pipeline(project: str, dataset: str, table: str):
         project=project,
         location="us-central1",
         display_name="classification-xgb-model",
-        artifact_uri=t.outputs["model_path"],
-        serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-0:latest"
+        unmanaged_container_model={
+            "artifactUri": t.outputs["model_path"],
+            "containerSpec": {
+                "imageUri": "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-0:latest"
+            }
+        }
     )
 
     deploy_op = ModelDeployOp(
