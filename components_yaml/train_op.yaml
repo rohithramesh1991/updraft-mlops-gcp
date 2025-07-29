@@ -4,7 +4,7 @@ inputs:
   - {name: x_train_path, type: Dataset}
   - {name: y_train_path, type: Dataset}
 outputs:
-  - {name: model_path, type: Model}
+  - {name: model_path, type: Artifact[google_cloud_pipeline_components.types.artifact_types.UnmanagedContainerModel]}
 implementation:
   container:
     image: IMAGE_URI_TRAIN
