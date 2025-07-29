@@ -36,13 +36,19 @@ def classification_pipeline(
         y_test_path=p.outputs["y_test_path"]
     )
     
-    uploaded = ModelUploadOp(
-    project=project,
-    location=region,
-    display_name="classification-xgb-model",
-    unmanaged_container_model=t.outputs["model_path"],  # Pass the artifact directly.
-    container_spec={"image_uri": "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest"}
+    importer_node = importer(
+    artifact_uri=t.outputs['model_path'],
+    artifact_class=artifact_types.UnmanagedContainerModel,
+    metadata={'containerSpec': {'imageUri': 'us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-2:latest'}}
 )
+
+    
+    uploaded = ModelUploadOp(
+        project=project,
+        location=region,
+        display_name="classification-xgb-model",
+        unmanaged_container_model=importer_node.output
+    )
 
     endpoint = EndpointCreateOp(
         project=project,
